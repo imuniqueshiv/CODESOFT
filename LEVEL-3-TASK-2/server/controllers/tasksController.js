@@ -1,12 +1,11 @@
 import taskModel from '../models/Task.js';
-import projectModel from '../models/Project.js';
 
 // --- CREATE TASK ---
 export const createTask = async (req, res) => {
     try {
         const { title, description, projectId, assignedTo, dueDate, status } = req.body;
         
-        // Use req.userId from middleware (or req.body.userId if you used my previous fix)
+        // Handle userId from different middleware versions
         const userId = req.userId || req.body.userId; 
 
         if (!title || !projectId) {
@@ -15,11 +14,13 @@ export const createTask = async (req, res) => {
 
         const newTask = new taskModel({
             title,
-            description: description || "", // Make description optional
-            projectId,
+            description: description || "",
+            // CRITICAL FIX 1: Map the body 'projectId' to the DB 'project' field
+            project: projectId, 
             assignedTo,
             dueDate,
-            status: status || 'To Do',
+            // CRITICAL FIX 2: Use 'Pending' as default since 'Todo' failed validation
+            status: status || 'Pending', 
             createdBy: userId
         });
 
@@ -33,10 +34,12 @@ export const createTask = async (req, res) => {
 }
 
 // --- GET TASKS BY PROJECT ---
-export const getTasks = async (req, res) => {
+// CRITICAL FIX 3: Renamed to match your routes file exactly
+export const getTasksByProject = async (req, res) => {
     try {
         const { projectId } = req.params;
-        const tasks = await taskModel.find({ projectId });
+        // Search by 'project' field
+        const tasks = await taskModel.find({ project: projectId });
         return res.json({ success: true, tasks });
     } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
