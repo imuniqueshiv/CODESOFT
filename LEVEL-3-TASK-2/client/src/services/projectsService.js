@@ -25,3 +25,5 @@ export const deleteProject = async (id) => {
   const response = await api.delete(`/projects/${id}`);
   return response.data;
 };
+
+// FIX: Added comment to force Render rebuild cache for secure cookie settings.
