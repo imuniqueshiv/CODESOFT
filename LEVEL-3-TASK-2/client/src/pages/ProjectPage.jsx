@@ -35,7 +35,7 @@ const ProjectPage = () => {
 
         } catch (error) {
             console.error(error);
-            toast.error("Failed to load project details");
+            // Don't show error toast on initial load to avoid spamming if empty
         } finally {
             setLoading(false);
         }
@@ -68,7 +68,10 @@ const ProjectPage = () => {
                 if(updatedTasks.success) setTasks(updatedTasks.tasks);
             }
         } catch (error) {
-            toast.error("Failed to add task");
+            console.error(error);
+            // UPDATED: Show the real error message from backend
+            const errorMsg = error.response?.data?.message || "Failed to add task";
+            toast.error(errorMsg);
         } finally {
             setIsCreatingTask(false);
         }
