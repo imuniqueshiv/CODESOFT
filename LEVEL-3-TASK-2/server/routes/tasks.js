@@ -1,16 +1,16 @@
 import express from 'express';
-import { createTask, getTasksByProject, updateTaskStatus } from '../controllers/tasksController.js';
-import userAuth from '../middleware/userAuth.js'; // Assuming you have this middleware
+// UPDATED: Import 'getTasks' (not getTasksByProject) to match the controller
+import { createTask, getTasks, updateTaskStatus, deleteTask } from '../controllers/tasksController.js';
+import userAuth from '../middleware/userAuth.js';
 
 const router = express.Router();
 
-// Route: /api/tasks
 router.post('/', userAuth, createTask);
 
-// Route: /api/tasks/project/:projectId
-router.get('/project/:projectId', userAuth, getTasksByProject);
+// UPDATED: Use 'getTasks' here
+router.get('/project/:projectId', userAuth, getTasks);
 
-// Route: /api/tasks/:id
-router.put('/:id', userAuth, updateTaskStatus);
+router.put('/:taskId', userAuth, updateTaskStatus);
+router.delete('/:taskId', userAuth, deleteTask);
 
 export default router;
