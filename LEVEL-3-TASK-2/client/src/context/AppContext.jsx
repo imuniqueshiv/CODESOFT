@@ -5,35 +5,32 @@ import { toast } from "react-toastify";
 export const AppContent = createContext();
 
 export const AppContextProvider = ({ children }) => {
+    // 1. Force credentials to be sent with every request
     axios.defaults.withCredentials = true;
 
-    // --- FIX: PREVENT DOUBLE API PATH ---
-    // 1. Get the variable (or use localhost root if missing)
-    const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
-    
-    // 2. CRITICAL: Remove '/api' from the end if it exists.
-    // This ensures backendUrl is always "http://localhost:4000" (Root), not ".../api"
-    const backendUrl = rawUrl.replace(/\/api\/?$/, ''); 
+    // 2. BACKEND URL FIX (Crucial)
+    // We use "http://localhost:4000" as default (WITHOUT /api).
+    // We also use .replace() to strip '/api' if it accidentally comes from the .env file.
+    const backendUrl = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/api\/?$/, '');
 
     const [isLoggedin, setIsLoggedin] = useState(false);
     const [userData, setUserData] = useState(null);
 
     const getAuthState = async () => {
         try {
-            // We must manually add /api here now, because backendUrl is just the root
+            // Now we manually add /api, and since backendUrl is clean, it fits perfectly.
             const { data } = await axios.get(backendUrl + '/api/auth/is-auth');
             if (data.success) {
                 setIsLoggedin(true);
                 getUserData();
             }
         } catch (error) {
-            // console.log(error.message);
+            // console.log(error);
         }
     }
 
     const getUserData = async () => {
         try {
-            // Manually add /api here too
             const { data } = await axios.get(backendUrl + '/api/user/data');
             if (data.success) {
                 setUserData(data.userData);
@@ -50,7 +47,7 @@ export const AppContextProvider = ({ children }) => {
     }, [])
 
     const value = {
-        backendUrl, // Now this is safely just the root URL
+        backendUrl,
         isLoggedin, setIsLoggedin,
         userData, setUserData,
         getUserData

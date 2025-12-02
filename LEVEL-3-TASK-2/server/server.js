@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import cookieParser from 'cookie-parser';
-import connectDB from './config/mongodb.js'; 
+import connectDB from './config/mongodb.js';
 import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import projectRoutes from './routes/projects.js';
@@ -11,19 +11,17 @@ import taskRoutes from './routes/tasks.js';
 const app = express();
 const port = process.env.PORT || 4000;
 
-await connectDB(); 
+await connectDB();
 
-// --- CRITICAL FIX FOR RENDER COOKIES ---
-// 'trust proxy 1' tells Express to trust the first proxy (Render's Load Balancer).
-// Without this, req.secure is false, and 'secure: true' cookies are BLOCKED.
-app.set('trust proxy', 1); 
+// Essential for Render Production cookies
+app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(cookieParser());
 
 // --- CORS CONFIGURATION ---
 const allowedOrigins = [
-  'http://localhost:5173', 
+  'http://localhost:5173', // Localhost Frontend
   'https://codesoft-blond.vercel.app', 
   'https://codesoft-7ymdfyrh0-shiv-raj-singhs-projects.vercel.app'
 ];
@@ -37,7 +35,7 @@ app.use(
             return callback(null, true);
         }
 
-        // Regex to match any preview deployment on Vercel
+        // Regex for Vercel Preview Deployments
         const vercelPreviewPattern = /^https:\/\/.*-shiv-raj-singhs-projects\.vercel\.app$/;
         if (vercelPreviewPattern.test(origin)) {
             return callback(null, true);
@@ -45,7 +43,7 @@ app.use(
 
         return callback(new Error('Not allowed by CORS'));
     },
-    credentials: true, // ESSENTIAL for cookies
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
   })
