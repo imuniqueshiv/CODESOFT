@@ -1,25 +1,42 @@
-// import API from '../api/axios';
-// export const getTasks = (projectId) => API.get('/projects/' + projectId + '/tasks');
-// export const createTask = (projectId, payload) => API.post('/projects/' + projectId + '/tasks', payload);
-// export const updateTask = (taskId, patch) => API.patch('/tasks/' + taskId, patch);
-// export const deleteTask = (taskId) => API.delete('/tasks/' + taskId);
-// // 
+import axiosInstance from '../api/axiosInstance'; // Use the smart instance
 
-import axios from 'axios';
-
-const API_URL = 'http://localhost:4000/api/tasks';
-
+// Create Task
 export const createTask = async (taskData) => {
-  const response = await axios.post(API_URL, taskData);
-  return response.data;
+    try {
+        const { data } = await axiosInstance.post('/tasks', taskData);
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };
 
-export const getTasksByProject = async (projectId) => {
-  const response = await axios.get(`${API_URL}/project/${projectId}`);
-  return response.data;
+// Get Tasks by Project ID
+export const getTasks = async (projectId) => {
+    try {
+        // This was likely hardcoded to localhost before. Now it uses the dynamic URL.
+        const { data } = await axiosInstance.get(`/tasks/project/${projectId}`);
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };
 
+// Update Task Status
 export const updateTaskStatus = async (taskId, status) => {
-    const response = await axios.put(`${API_URL}/${taskId}`, { status });
-    return response.data;
+    try {
+        const { data } = await axiosInstance.put(`/tasks/${taskId}`, { status });
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Delete Task
+export const deleteTask = async (taskId) => {
+    try {
+        const { data } = await axiosInstance.delete(`/tasks/${taskId}`);
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };
