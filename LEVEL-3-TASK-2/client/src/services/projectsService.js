@@ -1,23 +1,27 @@
-import axios from 'axios';
+import api from '../api/axios'; // <-- CRITICAL: This holds the dynamic Render URL
 
-const API_URL = 'http://localhost:4000/api/projects';
+// NOTE: We no longer need the API_URL constant, as the base URL is handled by 'api'.
 
 export const createProject = async (projectData) => {
-  const response = await axios.post(API_URL, projectData);
+  // api.post uses the base URL (Render) + the route ('/projects')
+  const response = await api.post('/projects', projectData); 
   return response.data;
 };
 
 export const getProjects = async () => {
-  const response = await axios.get(API_URL);
+  // api.get uses the base URL (Render) + the route ('/projects')
+  const response = await api.get('/projects'); 
   return response.data;
 };
 
 export const getProject = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}`);
+  // api.get uses the base URL (Render) + the route (`/projects/${id}`)
+  const response = await api.get(`/projects/${id}`);
   return response.data;
 };
 
 export const deleteProject = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
+  // api.delete uses the base URL (Render) + the route (`/projects/${id}`)
+  const response = await api.delete(`/projects/${id}`);
   return response.data;
 };
