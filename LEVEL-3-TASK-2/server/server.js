@@ -13,7 +13,7 @@ const port = process.env.PORT || 4000;
 
 await connectDB();
 
-// Essential for Render Production cookies
+// Essential for Render Production
 app.set('trust proxy', 1);
 
 app.use(express.json());
@@ -45,7 +45,8 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
+    // UPDATED: Added 'token' to this list so the browser allows it
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with', 'token'],
   })
 );
 

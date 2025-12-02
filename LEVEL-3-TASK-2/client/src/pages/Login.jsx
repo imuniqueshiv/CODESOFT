@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 const Login = () => {
 
     const navigate = useNavigate()
-    const { backendUrl, setIsLoggedin, getUserData } = useContext(AppContent)
+    const { backendUrl, setIsLoggedin, getUserData, setToken } = useContext(AppContent)
 
     const [state, setState] = useState('Sign Up')
     const [name, setName] = useState('')
@@ -18,23 +18,28 @@ const Login = () => {
     const onSubmitHandler = async (e) => {
         e.preventDefault();
         try {
-            axios.defaults.withCredentials = true;
-
             if (state === 'Sign Up') {
                 const { data } = await axios.post(backendUrl + '/api/auth/register', { name, email, password });
                 if (data.success) {
+                    // UPDATED: Save Token
+                    setToken(data.token); 
+                    localStorage.setItem('token', data.token);
+
                     setIsLoggedin(true);
-                    await getUserData(); 
-                    navigate('/dashboard'); // Go to Dashboard on success
+                    // No need to call getUserData here, useEffect in Context handles it
+                    navigate('/dashboard'); 
                 } else {
                     toast.error(data.message || 'Register failed');
                 }
             } else {
                 const { data } = await axios.post(backendUrl + '/api/auth/login', { email, password });
                 if (data.success) {
+                    // UPDATED: Save Token
+                    setToken(data.token);
+                    localStorage.setItem('token', data.token);
+
                     setIsLoggedin(true);
-                    await getUserData();
-                    navigate('/dashboard'); // Go to Dashboard on success
+                    navigate('/dashboard'); 
                 } else {
                     toast.error(data.message || 'Login failed');
                 }

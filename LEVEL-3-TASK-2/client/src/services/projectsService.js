@@ -1,29 +1,51 @@
-import api from '../api/axios'; // <-- CRITICAL: This holds the dynamic Render URL
+import axiosInstance from '../api/axiosInstance'; // Use the smart instance
 
-// NOTE: We no longer need the API_URL constant, as the base URL is handled by 'api'.
-
-export const createProject = async (projectData) => {
-  // api.post uses the base URL (Render) + the route ('/projects')
-  const response = await api.post('/projects', projectData); 
-  return response.data;
-};
-
+// Get all projects
 export const getProjects = async () => {
-  // api.get uses the base URL (Render) + the route ('/projects')
-  const response = await api.get('/projects'); 
-  return response.data;
+    try {
+        const { data } = await axiosInstance.get('/projects');
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };
 
+// Get a single project
 export const getProject = async (id) => {
-  // api.get uses the base URL (Render) + the route (`/projects/${id}`)
-  const response = await api.get(`/projects/${id}`);
-  return response.data;
+    try {
+        const { data } = await axiosInstance.get(`/projects/${id}`);
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };
 
+// Create a new project
+export const createProject = async (projectData) => {
+    try {
+        const { data } = await axiosInstance.post('/projects', projectData);
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Delete a project
 export const deleteProject = async (id) => {
-  // api.delete uses the base URL (Render) + the route (`/projects/${id}`)
-  const response = await api.delete(`/projects/${id}`);
-  return response.data;
+    try {
+        const { data } = await axiosInstance.delete(`/projects/${id}`);
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };
 
-// FIX: Added comment to force Render rebuild cache for secure cookie settings.
+// Update a project
+export const updateProject = async (id, updateData) => {
+    try {
+        const { data } = await axiosInstance.put(`/projects/${id}`, updateData);
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};

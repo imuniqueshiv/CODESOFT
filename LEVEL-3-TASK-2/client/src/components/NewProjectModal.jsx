@@ -15,13 +15,16 @@ const NewProjectModal = ({ onClose, onCreated }) => {
     e.preventDefault();
     setLoading(true);
     try {
+      // This calls the service which uses the smart axiosInstance (with token)
       await createProject(formData);
+      
       toast.success("Project created successfully!");
       if(onCreated) onCreated();
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to create project");
+      const errorMsg = err.response?.data?.message || "Failed to create project";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

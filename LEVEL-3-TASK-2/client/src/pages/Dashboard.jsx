@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getProjects, deleteProject } from '../services/projectsService';
+import axiosInstance from '../api/axiosInstance'; // UPDATED: Use the smart instance
 import ProjectCard from '../components/ProjectCard';
 import NewProjectModal from '../components/NewProjectModal';
 import { toast } from 'react-toastify';
@@ -17,8 +17,14 @@ export default function Dashboard() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const res = await getProjects();
-      setProjects(res.projects || []); 
+      // UPDATED: Direct call with token
+      const { data } = await axiosInstance.get('/projects');
+      
+      if (data.success) {
+        setProjects(data.projects || []); 
+      } else {
+        toast.error(data.message || "Failed to load projects");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Failed to load projects.");
@@ -30,10 +36,16 @@ export default function Dashboard() {
   const confirmDelete = async () => {
     if (!projectToDelete) return;
     try {
-        await deleteProject(projectToDelete._id);
-        // Optimistic UI update: Remove from list immediately
-        setProjects(prev => prev.filter(p => p._id !== projectToDelete._id));
-        toast.success("Project deleted successfully");
+        // UPDATED: Direct call with token
+        const { data } = await axiosInstance.delete(`/projects/${projectToDelete._id}`);
+        
+        if (data.success) {
+            // Optimistic UI update: Remove from list immediately
+            setProjects(prev => prev.filter(p => p._id !== projectToDelete._id));
+            toast.success("Project deleted successfully");
+        } else {
+            toast.error(data.message || "Failed to delete project");
+        }
     } catch (err) {
         console.error(err);
         toast.error("Failed to delete project");

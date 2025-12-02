@@ -25,29 +25,8 @@ export const register = async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-        // COOKIE SETTINGS
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Must be true on Render
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Must be 'none' for Vercel -> Render
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-
-        // Sending Welcome Email (Wrapped in try-catch to prevent crash)
-        const mailOptions = {
-            from: process.env.SENDER_EMAIL,
-            to: email,
-            subject: "Welcome to PROSYNCT!",
-            text: `Welcome to PROSYNCT. Your account has been created with email id: ${email}`
-        }
-        
-        try {
-            await transporter.sendMail(mailOptions);
-        } catch (emailError) {
-            console.log("Email error:", emailError);
-        }
-
-        return res.json({ success: true });
+        // UPDATED: Send token in response JSON instead of Cookie
+        return res.json({ success: true, token });
 
     } catch (error) {
         return res.json({ success: false, message: error.message });
@@ -77,15 +56,8 @@ export const login = async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-        // COOKIE SETTINGS
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', 
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-
-        return res.json({ success: true });
+        // UPDATED: Send token in response JSON instead of Cookie
+        return res.json({ success: true, token });
 
     } catch (error) {
         return res.json({ success: false, message: error.message });
@@ -95,22 +67,15 @@ export const login = async (req, res) => {
 // --- LOGOUT ---
 export const logout = async (req, res) => {
     try {
-        res.clearCookie('token', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        });
-
+        // Client handles token removal from LocalStorage
         return res.json({ success: true, message: "Logged Out" });
     } catch (error) {
         return res.json({ success: false, message: error.message });
     }
 }
 
-// ... KEEP THE REST OF YOUR FUNCTIONS (sendVerifyOtp, verifyEmail, etc.) EXACTLY AS THEY WERE ...
-// (I am omitting them here to save space, but DO NOT DELETE THEM from your file)
+// --- SEND VERIFY OTP ---
 export const sendVerifyOtp = async (req, res) => {
-    // ... paste your existing code here ...
     try {
         const { userId } = req;
         const user = await userModel.findById(userId);
@@ -140,8 +105,8 @@ export const sendVerifyOtp = async (req, res) => {
     }
 }
 
+// --- VERIFY EMAIL ---
 export const verifyEmail = async (req, res) => {
-    // ... paste your existing code here ...
     const { otp } = req.body;
     const { userId } = req;
 
@@ -176,6 +141,7 @@ export const verifyEmail = async (req, res) => {
     }
 }
 
+// --- CHECK AUTH STATUS ---
 export const isAuthenticated = async (req, res) => {
     try {
         return res.json({ success: true });
@@ -184,8 +150,8 @@ export const isAuthenticated = async (req, res) => {
     }
 }
 
+// --- SEND RESET OTP ---
 export const sendResetOtp = async (req, res) => {
-    // ... paste your existing code here ...
     const { email } = req.body;
 
     if (!email) {
@@ -220,8 +186,8 @@ export const sendResetOtp = async (req, res) => {
     }
 }
 
+// --- RESET PASSWORD ---
 export const resetPassword = async (req, res) => {
-    // ... paste your existing code here ...
     const { email, otp, newPassword } = req.body;
 
     if (!email || !otp || !newPassword) {

@@ -1,9 +1,8 @@
-// server/middleware/userAuth.js
 import jwt from "jsonwebtoken";
 
 const userAuth = async (req, res, next) => {
-
-    const { token } = req.cookies;
+    // UPDATED: Check for token in HEADERS, not cookies
+    const token = req.headers.token;
 
     if (!token) {
         return res.json({

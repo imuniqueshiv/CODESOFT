@@ -5,30 +5,17 @@ import { toast } from "react-toastify";
 export const AppContent = createContext();
 
 export const AppContextProvider = ({ children }) => {
-    // 1. Force credentials to be sent with every request
-    axios.defaults.withCredentials = true;
-
-    // 2. BACKEND URL FIX (Crucial)
-    // We use "http://localhost:4000" as default (WITHOUT /api).
-    // We also use .replace() to strip '/api' if it accidentally comes from the .env file.
+    
+    // BACKEND URL CONFIG
     const backendUrl = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/api\/?$/, '');
 
     const [isLoggedin, setIsLoggedin] = useState(false);
     const [userData, setUserData] = useState(null);
 
-    const getAuthState = async () => {
-        try {
-            // Now we manually add /api, and since backendUrl is clean, it fits perfectly.
-            const { data } = await axios.get(backendUrl + '/api/auth/is-auth');
-            if (data.success) {
-                setIsLoggedin(true);
-                getUserData();
-            }
-        } catch (error) {
-            // console.log(error);
-        }
-    }
+    // UPDATED: Initialize token from LocalStorage
+    const [token, setToken] = useState(localStorage.getItem('token') || '');
 
+    // Function to fetch User Data
     const getUserData = async () => {
         try {
             const { data } = await axios.get(backendUrl + '/api/user/data');
@@ -42,15 +29,33 @@ export const AppContextProvider = ({ children }) => {
         }
     }
 
+    // UPDATED: Monitor Token Changes
     useEffect(() => {
-        getAuthState();
-    }, [])
+        if (token) {
+            // 1. Save to LocalStorage
+            localStorage.setItem('token', token);
+            
+            // 2. Set default header for ALL axios requests
+            axios.defaults.headers.common['token'] = token;
+            
+            // 3. Set LoggedIn state and fetch data
+            setIsLoggedin(true);
+            getUserData();
+        } else {
+            // Logout Cleanup
+            localStorage.removeItem('token');
+            delete axios.defaults.headers.common['token'];
+            setIsLoggedin(false);
+            setUserData(null);
+        }
+    }, [token]);
 
     const value = {
         backendUrl,
         isLoggedin, setIsLoggedin,
         userData, setUserData,
-        getUserData
+        getUserData,
+        token, setToken // Expose setToken so Login page can use it
     };
 
     return (
