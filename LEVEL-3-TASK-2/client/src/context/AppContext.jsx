@@ -7,9 +7,17 @@ export const AppContent = createContext();
 export const AppContextProvider = ({ children }) => {
     axios.defaults.withCredentials = true;
 
-    const backendUrl = "http://localhost:4000"; 
+    // --- SMART BACKEND URL ---
+    // 1. Get the variable from Vercel (or use localhost if missing)
+    // 2. We use a safe check (import.meta.env && ...) to prevent crashes in some build environments
+    // 3. Remove '/api' from the end if it exists (to prevent double /api/api issues)
+    
+    const apiEnvVar = (import.meta.env && import.meta.env.VITE_API_URL) ? import.meta.env.VITE_API_URL : false;
+    const rawUrl = apiEnvVar || "http://localhost:4000";
+    const backendUrl = rawUrl.replace(/\/api$/, ''); 
+
     const [isLoggedin, setIsLoggedin] = useState(false);
-    const [userData, setUserData] = useState(null); // Changed false to null for better type handling
+    const [userData, setUserData] = useState(null);
 
     const getAuthState = async () => {
         try {
