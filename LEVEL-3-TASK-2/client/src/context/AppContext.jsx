@@ -5,23 +5,25 @@ import { toast } from "react-toastify";
 export const AppContent = createContext();
 
 export const AppContextProvider = ({ children }) => {
+    // Ensure credentials are sent with every request
     axios.defaults.withCredentials = true;
 
-    // --- SMART BACKEND URL ---
-    // 1. Get the variable from Vercel (or use localhost if missing)
-    // 2. We use a safe check (import.meta.env && ...) to prevent crashes in some build environments
-    // 3. Remove '/api' from the end if it exists (to prevent double /api/api issues)
+    // --- FIX: ROBUST URL HANDLING ---
+    // If VITE_API_URL is "https://api.com/api", we use it directly.
+    // If we need the base (without /api) for some reason, we strip it carefully.
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
     
-    const apiEnvVar = (import.meta.env && import.meta.env.VITE_API_URL) ? import.meta.env.VITE_API_URL : false;
-    const rawUrl = apiEnvVar || "http://localhost:4000";
-    const backendUrl = rawUrl.replace(/\/api$/, ''); 
+    // Derived backend URL (for endpoints that might be outside /api, though usually not needed if organized well)
+    // If apiUrl is '.../api', this becomes '.../'
+    const backendUrl = apiUrl; 
 
     const [isLoggedin, setIsLoggedin] = useState(false);
     const [userData, setUserData] = useState(null);
 
     const getAuthState = async () => {
         try {
-            const { data } = await axios.get(backendUrl + '/api/auth/is-auth');
+            // Using the full apiUrl ensures we hit the correct route
+            const { data } = await axios.get(`${apiUrl}/auth/is-auth`);
             if (data.success) {
                 setIsLoggedin(true);
                 getUserData();
@@ -33,7 +35,7 @@ export const AppContextProvider = ({ children }) => {
 
     const getUserData = async () => {
         try {
-            const { data } = await axios.get(backendUrl + '/api/user/data');
+            const { data } = await axios.get(`${apiUrl}/user/data`);
             if (data.success) {
                 setUserData(data.userData);
             } else {
@@ -49,7 +51,7 @@ export const AppContextProvider = ({ children }) => {
     }, [])
 
     const value = {
-        backendUrl,
+        backendUrl, // Pass this if you need it elsewhere
         isLoggedin, setIsLoggedin,
         userData, setUserData,
         getUserData

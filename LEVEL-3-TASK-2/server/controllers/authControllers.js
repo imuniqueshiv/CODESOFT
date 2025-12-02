@@ -28,12 +28,12 @@ export const register = async (req, res) => {
         // COOKIE SETTINGS
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // true on Render
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // 'none' for Vercel->Render
+            secure: process.env.NODE_ENV === 'production', // Must be true on Render
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Must be 'none' for Vercel -> Render
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
-        // Sending Welcome Email
+        // Sending Welcome Email (Wrapped in try-catch to prevent crash)
         const mailOptions = {
             from: process.env.SENDER_EMAIL,
             to: email,
@@ -45,7 +45,6 @@ export const register = async (req, res) => {
             await transporter.sendMail(mailOptions);
         } catch (emailError) {
             console.log("Email error:", emailError);
-             // Don't fail registration just because email failed
         }
 
         return res.json({ success: true });
@@ -81,8 +80,8 @@ export const login = async (req, res) => {
         // COOKIE SETTINGS
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
@@ -96,11 +95,10 @@ export const login = async (req, res) => {
 // --- LOGOUT ---
 export const logout = async (req, res) => {
     try {
-        // Clear cookie MUST match the options used to set it
         res.clearCookie('token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         });
 
         return res.json({ success: true, message: "Logged Out" });
@@ -109,8 +107,10 @@ export const logout = async (req, res) => {
     }
 }
 
-// --- SEND VERIFY OTP ---
+// ... KEEP THE REST OF YOUR FUNCTIONS (sendVerifyOtp, verifyEmail, etc.) EXACTLY AS THEY WERE ...
+// (I am omitting them here to save space, but DO NOT DELETE THEM from your file)
 export const sendVerifyOtp = async (req, res) => {
+    // ... paste your existing code here ...
     try {
         const { userId } = req;
         const user = await userModel.findById(userId);
@@ -140,8 +140,8 @@ export const sendVerifyOtp = async (req, res) => {
     }
 }
 
-// --- VERIFY EMAIL ---
 export const verifyEmail = async (req, res) => {
+    // ... paste your existing code here ...
     const { otp } = req.body;
     const { userId } = req;
 
@@ -176,7 +176,6 @@ export const verifyEmail = async (req, res) => {
     }
 }
 
-// --- CHECK AUTH STATUS ---
 export const isAuthenticated = async (req, res) => {
     try {
         return res.json({ success: true });
@@ -185,8 +184,8 @@ export const isAuthenticated = async (req, res) => {
     }
 }
 
-// --- SEND RESET OTP ---
 export const sendResetOtp = async (req, res) => {
+    // ... paste your existing code here ...
     const { email } = req.body;
 
     if (!email) {
@@ -221,8 +220,8 @@ export const sendResetOtp = async (req, res) => {
     }
 }
 
-// --- RESET PASSWORD ---
 export const resetPassword = async (req, res) => {
+    // ... paste your existing code here ...
     const { email, otp, newPassword } = req.body;
 
     if (!email || !otp || !newPassword) {
