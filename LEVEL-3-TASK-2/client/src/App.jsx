@@ -1,10 +1,11 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 // Layout / UI Components
 import Navbar from './components/Navbar';
-import Header from './components/Header';
+import Header from './components/Header'; 
 
 // Auth Pages
 import Home from './pages/Home';
@@ -24,9 +25,8 @@ const App = () => {
     <div>
       <ToastContainer />
       <Navbar />
-
+      
       <Routes>
-
         {/* Public Auth Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -51,7 +51,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
       </Routes>
     </div>
   );
