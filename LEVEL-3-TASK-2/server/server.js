@@ -16,25 +16,22 @@ await connectDB();
 app.use(express.json());
 app.use(cookieParser());
 
-// --- UPDATED CORS CONFIGURATION (SIMPLIFIED FOR STABILITY) ---
+// --- UPDATED CORS CONFIGURATION (MOST ROBUST METHOD) ---
 const allowedOrigins = [
-  'http://localhost:5173',                                          // For Local Development
-  'https://codesoft-blond.vercel.app',                              // Production Alias 1 (Main Vercel Domain)
-  'https://codesoft-7ymdfyrh0-shiv-raj-singhs-projects.vercel.app',  // NEWEST Temporary Deployment URL
+  'http://localhost:5173', 
+  'https://codesoft-blond.vercel.app', 
+  'https://codesoft-7ymdfyrh0-shiv-raj-singhs-projects.vercel.app', 
+  // Add a wildcard for temporary Vercel domains for better long-term stability
+  'https://*-shiv-raj-singhs-projects.vercel.app', 
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      // OR if the origin is explicitly in our list.
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        return callback(null, true);
-      }
-        var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-    },
+    origin: allowedOrigins, // Use the array directly
     credentials: true,
+    // Add explicit headers to help Chrome's preflight check
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
   })
 );
 
