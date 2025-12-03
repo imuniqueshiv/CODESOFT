@@ -18,16 +18,13 @@ const ProjectPage = () => {
     const [newTaskDate, setNewTaskDate] = useState('');
     const [isCreatingTask, setIsCreatingTask] = useState(false);
 
-    // Fetch Data
     const fetchData = async () => {
         try {
-            // 1. Fetch Project Details
             const projectData = await getProject(id);
             if (projectData.success) {
                 setProject(projectData.project);
             }
 
-            // 2. Fetch Tasks for this Project
             const tasksData = await getTasks(id);
             if (tasksData.success) {
                 setTasks(tasksData.tasks);
@@ -35,7 +32,6 @@ const ProjectPage = () => {
 
         } catch (error) {
             console.error(error);
-            // Don't show error toast on initial load to avoid spamming if empty
         } finally {
             setLoading(false);
         }
@@ -45,7 +41,6 @@ const ProjectPage = () => {
         fetchData();
     }, [id]);
 
-    // Handle Create Task
     const handleCreateTask = async (e) => {
         e.preventDefault();
         setIsCreatingTask(true);
@@ -55,7 +50,8 @@ const ProjectPage = () => {
                 title: newTaskTitle,
                 assignedTo: newTaskAssignee,
                 dueDate: newTaskDate,
-                status: 'To Do'
+                // UPDATED: Use 'Pending' which is a standard safe enum
+                status: 'Pending'
             };
             const res = await createTask(taskData);
             if (res.success) {
@@ -63,13 +59,11 @@ const ProjectPage = () => {
                 setNewTaskTitle('');
                 setNewTaskAssignee('');
                 setNewTaskDate('');
-                // Refresh tasks
                 const updatedTasks = await getTasks(id);
                 if(updatedTasks.success) setTasks(updatedTasks.tasks);
             }
         } catch (error) {
             console.error(error);
-            // UPDATED: Show the real error message from backend
             const errorMsg = error.response?.data?.message || "Failed to add task";
             toast.error(errorMsg);
         } finally {
@@ -77,7 +71,6 @@ const ProjectPage = () => {
         }
     };
 
-    // Handle Delete Task
     const handleDeleteTask = async (taskId) => {
         if(!window.confirm("Delete this task?")) return;
         try {
@@ -89,17 +82,13 @@ const ProjectPage = () => {
         }
     };
 
-    // Handle Status Update
     const toggleTaskStatus = async (task, currentStatus) => {
-        const newStatus = currentStatus === 'Completed' ? 'To Do' : 'Completed';
+        const newStatus = currentStatus === 'Completed' ? 'Pending' : 'Completed';
         try {
-            // Optimistic Update
             setTasks(prev => prev.map(t => t._id === task._id ? {...t, status: newStatus} : t));
-            
             await updateTaskStatus(task._id, newStatus);
         } catch (error) {
             toast.error("Failed to update status");
-            // Revert on error
             fetchData(); 
         }
     };
@@ -121,20 +110,17 @@ const ProjectPage = () => {
         );
     }
 
-    // Calculate Progress
     const completedTasks = tasks.filter(t => t.status === 'Completed').length;
     const progress = tasks.length === 0 ? 0 : Math.round((completedTasks / tasks.length) * 100);
 
     return (
         <div className='min-h-screen bg-slate-50 p-6 pt-24 transition-all duration-500'>
             
-            {/* Back Button */}
             <button onClick={() => navigate('/dashboard')} className='flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-6 transition-colors'>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Back to Dashboard
             </button>
 
-            {/* Project Header Card */}
             <div className='bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-8'>
                 <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-6'>
                     <div>
@@ -159,7 +145,6 @@ const ProjectPage = () => {
                         </div>
                     </div>
 
-                    {/* Circular Progress */}
                     <div className='flex items-center gap-4'>
                         <div className='text-right'>
                             <div className='text-4xl font-bold text-indigo-600'>{progress}%</div>
@@ -168,7 +153,6 @@ const ProjectPage = () => {
                     </div>
                 </div>
 
-                {/* Progress Bar */}
                 <div className='w-full bg-slate-100 h-3 rounded-full mt-8 overflow-hidden'>
                     <div 
                         className='bg-gradient-to-r from-indigo-500 to-blue-500 h-full rounded-full transition-all duration-1000 ease-out' 
@@ -179,7 +163,6 @@ const ProjectPage = () => {
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
                 
-                {/* Task List */}
                 <div className='lg:col-span-2'>
                     <div className='flex justify-between items-end mb-6'>
                         <h3 className='text-xl font-bold text-slate-800'>Tasks</h3>
@@ -227,7 +210,6 @@ const ProjectPage = () => {
                     </div>
                 </div>
 
-                {/* Add Task Sidebar */}
                 <div>
                     <div className='bg-white p-6 rounded-3xl shadow-sm border border-slate-100 sticky top-24'>
                         <div className='flex items-center gap-3 mb-6'>
